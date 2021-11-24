@@ -46,10 +46,6 @@ def profile(request, username):
         following = True
     else:
         following = False
-    if author == request.user:
-        cant_follow = True
-    else:
-        cant_follow = False
     post_list = author.posts.all()
     paginator = Paginator(post_list, settings.PAGE_COUNT)
     page_number = request.GET.get('page')
@@ -59,7 +55,6 @@ def profile(request, username):
         'author': author,
         'page_obj': page_obj,
         'following': following,
-        'cant_follow': cant_follow
     }
     return render(request, template, context)
 
@@ -146,6 +141,8 @@ def follow_index(request):
 def profile_follow(request, username):
     follower = request.user
     following = get_object_or_404(User, username=username)
+    if follower == following:
+        return redirect('posts:profile', username=username)
     new_follow = Follow(user=follower, author=following)
     new_follow.save()
     return redirect('posts:profile', username=username)
