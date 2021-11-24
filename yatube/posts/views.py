@@ -46,6 +46,10 @@ def profile(request, username):
         following = True
     else:
         following = False
+    if author == request.user:
+        cant_follow = True
+    else:
+        cant_follow = False
     post_list = author.posts.all()
     paginator = Paginator(post_list, settings.PAGE_COUNT)
     page_number = request.GET.get('page')
@@ -55,6 +59,7 @@ def profile(request, username):
         'author': author,
         'page_obj': page_obj,
         'following': following,
+        'cant_follow': cant_follow
     }
     return render(request, template, context)
 

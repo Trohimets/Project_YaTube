@@ -13,6 +13,13 @@
       >
         Отписаться
       </a>
+    {% elif cant_follow %}
+        <a
+          class="btn btn-lg btn-primary"
+          href="{% url 'posts:index'%}" role="button"
+        >
+          Подписаться на самого себя нельзя!
+        </a>
     {% else %}
         <a
           class="btn btn-lg btn-primary"
