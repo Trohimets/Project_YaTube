@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %}
+Пост {{ post.text|truncatechars:30 }}
+{% endblock %}
+{% block content %}
+      <main>
+      <div class="row">
+        <aside class="col-12 col-md-3">
+          <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+              Дата публикации: {{ post.pub_date|date:"d E Y" }}
+            </li>
+            {% if post.group %}  
+              <li class="list-group-item">
+                Группа: {{ post.group.title }}
+                <a href="{% url 'posts:group_list' post.group.slug %}">
+                все записи группы
+                </a>
+              </li>
+            {% endif %}
+              <li class="list-group-item">
+                Автор: {{post.author.get_full_name }}
+              </li>
+              <li class="list-group-item d-flex justify-content-between align-items-center">
+              Всего постов автора:  <span > {{ post.author.posts.count }}</span>
+            </li>
+            <li class="list-group-item">
+              <a href="{% url 'posts:profile' post.author %}">
+                все посты пользователя
+              </a>
+            </li>
+            {% if request.user == post.author %}
+            <li class="list-group-item">
+              <a href="{% url 'posts:post_edit' post.id %}">
+                редактировать пост
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </aside>
+          <div class="col-6 col-md-3">
+          {% thumbnail post.image "640x640" crop="center" upscale=True as im %}
+            <img class="card-img my-2" src="{{ im.url }}">
+          {% endthumbnail %}
+          </div>  
+        <article class="col-6 col-md-6">
+          <p> {{ post.text }} </p>
+        </article>
+          <div class="card my-4">
+            <h5 class="card-header">Добавить комментарий:</h5>
+            <div class="card-body">
+              <!-- action ведет на обработчик формы  -->
+              <form method="post" action="{% url 'posts:add_comment' post.id %}">
+                <!-- не забываем генерировать токен!  -->
+                {% csrf_token %}     
+                <div class="form-group mb-2">
+                  <textarea name="text" cols="40" rows="10" class="form-control" required id="id_text">
+                  </textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Отправить</button>
+              </form>
+            </div>
+          </div>
+          {% for comment in comments %}
+            <ul>
+              <li>
+                {{ comment.text }}
+              </li>
+              <li>
+                Автор:
+                <a href="{% url 'posts:profile' post.author %}">  {{ post.author }} </a>  
+              </li>
+              <li>
+                Дата публикации: {{ comment.created|date:"d E Y" }}
+              </li>
+            </ul>
+          {% if not forloop.last %}<hr>{% endif %}
+          {% endfor %}
+      </div> 
+    </main>
+{% endblock %}   

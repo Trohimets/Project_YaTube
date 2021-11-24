@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% load thumbnail %}
+{% block title %}
+{{ title }}
+{% endblock %}
+{% load cache %}
+      {% block content %}
+      {% include 'includes/switcher.html' %}
+      <div class="container py-5">  
+        <h1>{{ text }}</h1>
+        {% cache 20 index_page %}
+      {% for post in page_obj %}
+          <ul>
+            <li>
+              Автор: {{ post.author }}
+            </li>
+            <li>
+              Дата публикации: {{ post.pub_date|date:"d E Y" }}
+            </li>
+            <li>
+          <a href="{% url 'posts:post_detail' post.id %}"> Перейти в пост </a>
+            </li>
+          </ul>
+            <div class="row">
+                  <div class="col-6 col-md-3">
+                    {% thumbnail post.image "640x640" crop="center" upscale=True as im %}
+                      <img class="card-img my-2" src="{{ im.url }}">
+                    {% endthumbnail %}
+                  </div>
+                <div class="col-6 col-md-9">  
+                <p>{{ post.text }}</p>
+                </div>
+            </div>
+          <ul> 
+          {% if post.group.slug %}
+            <li>
+              <a href="{% url 'posts:group_list' post.group.slug %}">все записи группы {{ post.group }} </a>
+            </li>
+          {% endif %}
+            {% if post.comments.count %}
+            <li>
+              <a href="{% url 'posts:post_detail' post.id %}">Комментарии {{ post.comments.count }}</a> 
+            </li>
+            {% endif %}
+          </ul>
+          {% if not forloop.last %}<hr>{% endif %}
+      {% endfor %}
+      {% endcache %} 
+      {% include 'posts/includes/paginator.html' %}
+      </div> 
+      {% endblock %}
+
