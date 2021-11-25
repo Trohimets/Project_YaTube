@@ -40,12 +40,9 @@ def group_posts(request, slug):
 
 def profile(request, username):
     author = get_object_or_404(User, username=username)
-    if request.user.is_authenticated and Follow.objects.filter(
+    following = request.user.is_authenticated and Follow.objects.filter(
             user=request.user,
-            author=author).exists():
-        following = True
-    else:
-        following = False
+            author=author).exists()
     post_list = author.posts.all()
     paginator = Paginator(post_list, settings.PAGE_COUNT)
     page_number = request.GET.get('page')
@@ -143,8 +140,12 @@ def profile_follow(request, username):
     following = get_object_or_404(User, username=username)
     if follower == following:
         return redirect('posts:profile', username=username)
-    new_follow = Follow(user=follower, author=following)
-    new_follow.save()
+    check_follow = Follow.objects.filter(user=request.user, author=following).exists()
+    if check_follow:
+        return redirect('posts:profile', username=username)
+    else:
+        new_follow = Follow(user=follower, author=following)
+        new_follow.save()
     return redirect('posts:profile', username=username)
 
 
