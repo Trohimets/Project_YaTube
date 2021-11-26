@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase, Client
 from http import HTTPStatus
-from ..models import Group, Post
+from ..models import Group, Post, Comment, Follow
 
 
 User = get_user_model()
@@ -11,7 +11,8 @@ class PostsURLTests(TestCase):
     @classmethod
     def setUpClass(cls):
         super().setUpClass()
-        cls.author = User.objects.create_user(username='Author')
+        cls.author = User.objects.create(username='Author')
+        cls.user = User.objects.create(username='Noname')
         cls.group = Group.objects.create(
             title='Тестовая группа',
             slug='test-slug',
@@ -22,10 +23,18 @@ class PostsURLTests(TestCase):
             text='Тестовый текст',
             id=1
         )
+        cls.comment = Comment.objects.create(
+            post=cls.post,
+            author=cls.user,
+            text='тестовый комментарий'
+        )
+        cls.follow = Follow.objects.create(
+            author=cls.author,
+            user=cls.user
+        )
 
     def setUp(self):
         self.guest_client = Client()
-        self.user = User.objects.create_user(username='Noname')
         self.authorized_client = Client()
         self.authorized_client.force_login(self.user)
         self.authorized_author_client = Client()
@@ -66,6 +75,22 @@ class PostsURLTests(TestCase):
     def test_post_create_redirect_anonimous(self):
         response = self.guest_client.get('/create/', follow=True)
         self.assertRedirects(response, '/auth/login/?next=/create/')
+
+    def test_add_comment(self):
+        response = self.authorized_client.get('/posts/1/comment')
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+
+    def test_follow_index(self):
+        response = self.authorized_client.get('/follow/')
+        self.assertEqual(response.status_code, HTTPStatus.OK)
+
+    def test_follow(self):
+        response = self.authorized_client.get('/profile/Author/follow/')
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
+
+    def test_unfollow(self):
+        response = self.authorized_client.get('/profile/Author/unfollow/')
+        self.assertEqual(response.status_code, HTTPStatus.FOUND)
 
     def test_urls_uses_correct_template(self):
         templates_url_names = {

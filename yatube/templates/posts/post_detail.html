@@ -50,9 +50,7 @@
           <div class="card my-4">
             <h5 class="card-header">Добавить комментарий:</h5>
             <div class="card-body">
-              <!-- action ведет на обработчик формы  -->
               <form method="post" action="{% url 'posts:add_comment' post.id %}">
-                <!-- не забываем генерировать токен!  -->
                 {% csrf_token %}     
                 <div class="form-group mb-2">
                   <textarea name="text" cols="40" rows="10" class="form-control" required id="id_text">

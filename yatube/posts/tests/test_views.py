@@ -7,7 +7,7 @@ from django.test import Client, TestCase, override_settings
 from django.urls import reverse
 from django.core.cache import cache
 from django import forms
-from ..models import Group, Post
+from ..models import Group, Post, Follow
 
 User = get_user_model()
 TEMP_MEDIA_ROOT = tempfile.mkdtemp(dir=settings.BASE_DIR)
@@ -84,18 +84,13 @@ class PostPagesTests(TestCase):
         self.assertTemplateUsed(response, 'posts/create_post.html')
 
     def check_post(self, first_object):
-        post_author_0 = first_object.author.username
-        post_text_0 = first_object.text
-        post_id_0 = first_object.id
-        post_image = first_object.image
-        self.assertEqual(post_author_0, 'Author')
-        self.assertEqual(post_text_0, 'Тестовый текст')
-        self.assertEqual(post_id_0, 1)
-        self.assertEqual(post_image, 'posts/small.gif')
+        self.assertEqual(first_object.author.username, 'Author')
+        self.assertEqual(first_object.text, 'Тестовый текст')
+        self.assertEqual(first_object.id, 1)
+        self.assertEqual(first_object.image, 'posts/small.gif')
 
     def check_group(self, first_object):
-        post_group_o = first_object.group.title
-        self.assertEqual(post_group_o, 'Тестовая группа')
+        self.assertEqual(first_object.group.title, 'Тестовая группа')
 
     def test_index_page_context(self):
         response = self.guest_client.get(reverse('posts:index'))
@@ -292,3 +287,21 @@ class FollowTests(TestCase):
             reverse('posts:follow_index'))
         count_posts = len(response.context['page_obj'])
         self.assertEqual(count_posts, 0)
+
+    def test_user_can_follow(self):
+        """Авторизованный пользователь может подписываться на авторов"""
+        self.authorized_client.get(
+            reverse('posts:profile_follow', kwargs={'username': 'Author'}))
+        follow = Follow.objects.filter(
+            author=self.author, user=self.follower
+        ).exists
+        self.assertTrue(follow)
+
+    def test_user_can_unfollow(self):
+        """Авторизованный пользователь может отписываться от авторов"""
+        self.authorized_client.get(
+            reverse('posts:profile_unfollow', kwargs={'username': 'Author'}))
+        follow = Follow.objects.filter(
+            author=self.author, user=self.follower
+        ).exists()
+        self.assertFalse(follow)

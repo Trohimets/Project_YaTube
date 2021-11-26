@@ -38,7 +38,8 @@ class Post(models.Model):
         null=True,
     )
     image = models.ImageField(
-        'Картинка',
+        verbose_name='Картинка',
+        help_text='Выберите картинку',
         upload_to='posts/',
         blank=True
     )
@@ -77,6 +78,9 @@ class Comment(models.Model):
         auto_now_add=True
     )
 
+    def __str__(self):
+        return self.text[:20]
+
 
 class Follow(models.Model):
     user = models.ForeignKey(
@@ -93,3 +97,12 @@ class Follow(models.Model):
         verbose_name='Автор',
         null=True,
     )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['author', 'user'], name='unique_following'),
+        ]
+
+    def __str__(self):
+        return f'{self.user} подписан на {self.author}'
