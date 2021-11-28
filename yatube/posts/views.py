@@ -2,13 +2,11 @@ from django.core.paginator import Paginator
 from django.shortcuts import (render, get_object_or_404, redirect)
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
-from django.core.cache import cache
-from .models import Post, Group, Follow, User
-from .forms import PostForm, CommentForm
+from posts.models import Post, Group, Follow, User
+from posts.forms import PostForm, CommentForm
 
 
 def index(request):
-    cache.clear()
     post_list = Post.objects.all()
     paginator = Paginator(post_list, settings.PAGE_COUNT)
     page_number = request.GET.get('page')
@@ -119,7 +117,6 @@ def add_comment(request, post_id):
 
 @login_required
 def follow_index(request):
-    cache.clear()
     post_list = Post.objects.filter(author__following__user=request.user)
     paginator = Paginator(post_list, settings.PAGE_COUNT)
     page_number = request.GET.get('page')
@@ -141,11 +138,10 @@ def profile_follow(request, username):
     following = get_object_or_404(User, username=username)
     if follower == following:
         return redirect('posts:profile', username=username)
-    new_follow = Follow.objects.get_or_create(
+    Follow.objects.get_or_create(
         user=follower,
         author=following
     )
-    new_follow[0].save()
     return redirect('posts:profile', username=username)
 
 
