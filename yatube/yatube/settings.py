@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = [
     'localhost',
+    'www.trohimets.pythonanywhere.com',
+    'trohimets.pythonanywhere.com',
     '127.0.0.1',
     '[::1]',
     'testserver',
