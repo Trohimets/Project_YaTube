@@ -4,6 +4,7 @@
 ![Bootstrap](https://img.shields.io/badge/bootstrap-%23563D7C.svg?style=for-the-badge&logo=bootstrap&logoColor=white)
 ![SQLite](https://img.shields.io/badge/sqlite-%2307405e.svg?style=for-the-badge&logo=sqlite&logoColor=white)
 ![GitHub](https://img.shields.io/badge/github-%23121011.svg?style=for-the-badge&logo=github&logoColor=white)
+
 Проект представляет собой социальную сеть для публикации личных дневников. 
 Это сайт, на котором можно создать свою страницу. Если на нее зайти, то можно посмотреть все записи автора.
 Пользователи могут заходить на чужие страницы, подписываться на авторов и комментировать их записи.
